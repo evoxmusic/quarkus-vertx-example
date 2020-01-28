@@ -5,7 +5,7 @@ COPY pom.xml /usr/src/app
 USER root
 RUN chown -R quarkus /usr/src/app
 USER quarkus
-RUN mvn -f /usr/src/app/pom.xml -Pnative clean package
+RUN mvn -f /usr/src/app/pom.xml -DskipTests=true -Pnative clean package
 
 ## Stage 2 : create the docker final image
 FROM registry.access.redhat.com/ubi8/ubi-minimal
@@ -13,4 +13,4 @@ WORKDIR /work/
 COPY --from=build /usr/src/app/target/*-runner /work/application
 RUN chmod 775 /work
 EXPOSE 8080
-CMD ["./application", "-Dquarkus.http.host=0.0.0.0"]
+CMD ["./application", "-Dquarkus.http.host=0.0.0.0", "-Dquarkus.datasource.url=$QOVERY_DATABASE_MY_POSTGRESQL_3498225_CONNECTION_URI"]
